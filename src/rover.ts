@@ -43,8 +43,8 @@ const directions: Direction[] = [
 const ForwardCmd: Command = {
   execute() {
     const curr = directions[direction];
-    x = Math.max(0, x + curr.xoffset);
-    y = Math.max(0, y + curr.yoffset);
+    x = Math.max(0, Math.min(4, x + curr.xoffset));
+    y = Math.max(0, Math.min(4, y + curr.yoffset));
     drawRover();
   },
 };
