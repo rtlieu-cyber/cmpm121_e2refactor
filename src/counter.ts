@@ -19,6 +19,8 @@ interface ShieldSnapshot {
   missing_charge: number;
 }
 
+const shieldEvent = new EventTarget();
+
 function shieldCalc(count: number): ShieldSnapshot {
   const curr_charge = count;
   const capacity = 10;
@@ -59,12 +61,19 @@ function renderStats(shield: ShieldSnapshot) {
     `Shield charge: ${shield.curr_charge} · Missing charge: ${shield.missing_charge}`;
 }
 
+shieldEvent.addEventListener("shield-change", (event) => {
+  const snapshot = (event as CustomEvent<ShieldSnapshot>).detail;
+  drawMeter(snapshot);
+});
+
 function setCount(next: number) {
   const bounded = Math.max(0, Math.min(10, next));
   if (bounded === count) return;
   count = bounded;
   const shield = shieldCalc(count);
-  drawMeter(shield);
+  shieldEvent.dispatchEvent(
+    new CustomEvent<ShieldSnapshot>("shield-change", { detail: shield }),
+  );
   if (panel) updateStats(shield);
 }
 
@@ -88,4 +97,9 @@ document.querySelector<HTMLButtonElement>("#counter-close")!.onclick = () => {
   panel.remove();
   panel = null;
 };
-drawMeter(shieldCalc(count));
+
+shieldEvent.dispatchEvent(
+  new CustomEvent<ShieldSnapshot>("shield-change", {
+    detail: shieldCalc(count),
+  }),
+);
