@@ -3,7 +3,6 @@ export {};
 const canvas = document.querySelector<HTMLCanvasElement>("#rover-canvas")!;
 const ctx = canvas.getContext("2d")!;
 const readout = document.querySelector<HTMLParagraphElement>("#rover-readout")!;
-const headings = ["North", "East", "South", "West"];
 let x = 2;
 let y = 2;
 let direction = 0;
@@ -12,19 +11,47 @@ interface Command {
   execute(): void;
 }
 
+interface Direction {
+  label: string;
+  xoffset: number;
+  yoffset: number;
+}
+
+const directions: Direction[] = [
+  {
+    label: "North",
+    xoffset: 0,
+    yoffset: -1,
+  },
+  {
+    label: "East",
+    xoffset: 1,
+    yoffset: 0,
+  },
+  {
+    label: "South",
+    xoffset: 0,
+    yoffset: 1,
+  },
+  {
+    label: "West",
+    xoffset: -1,
+    yoffset: 0,
+  },
+];
+
 const ForwardCmd: Command = {
   execute() {
-    if (direction === 0) y = Math.max(0, y - 1);
-    if (direction === 1) x = Math.min(4, x + 1);
-    if (direction === 2) y = Math.min(4, y + 1);
-    if (direction === 3) x = Math.max(0, x - 1);
+    const curr = directions[direction];
+    x = Math.max(0, x + curr.xoffset);
+    y = Math.max(0, y + curr.yoffset);
     drawRover();
   },
 };
 
 const RightCmd: Command = {
   execute() {
-    direction = (direction + 1) % 4;
+    direction = (direction + 1) % directions.length;
     drawRover();
   },
 };
@@ -53,7 +80,7 @@ function drawRover() {
   ctx.fill();
   ctx.restore();
   readout.textContent = `Position: (${x}, ${y}) · Facing: ${
-    headings[direction]
+    directions[direction].label
   }`;
 }
 
