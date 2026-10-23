@@ -8,6 +8,7 @@ let y = 2;
 let direction = 0;
 
 interface Command {
+  label: string;
   execute(): void;
 }
 
@@ -41,6 +42,7 @@ const directions: Direction[] = [
 ];
 
 const ForwardCmd: Command = {
+  label: "Forward",
   execute() {
     const curr = directions[direction];
     x = Math.max(0, Math.min(4, x + curr.xoffset));
@@ -50,14 +52,29 @@ const ForwardCmd: Command = {
 };
 
 const RightCmd: Command = {
+  label: "Right",
   execute() {
     direction = (direction + 1) % directions.length;
     drawRover();
   },
 };
 
+const CommandQueue: Command[] = [];
+
 function InvokeThee(Command: Command) {
   Command.execute();
+}
+
+function drawQueue() {
+  const pendingList = document.querySelector<HTMLOListElement>(
+    "#rover-pending",
+  );
+  pendingList?.replaceChildren();
+  CommandQueue.forEach((command) => {
+    const item = document.createElement("li");
+    item.textContent = command.label;
+    pendingList?.append(item);
+  });
 }
 
 function drawRover() {
@@ -85,15 +102,32 @@ function drawRover() {
 }
 
 document.querySelector<HTMLButtonElement>("#rover-forward")!.onclick = () => {
-  InvokeThee(ForwardCmd);
+  CommandQueue.push(ForwardCmd);
+  drawQueue();
 };
 document.querySelector<HTMLButtonElement>("#rover-right")!.onclick = () => {
-  InvokeThee(RightCmd);
+  CommandQueue.push(RightCmd);
+  drawQueue();
 };
 document.querySelector<HTMLButtonElement>("#rover-reset")!.onclick = () => {
   x = 2;
   y = 2;
   direction = 0;
+  CommandQueue.length = 0;
+  drawQueue();
+  drawRover();
+};
+document.querySelector<HTMLButtonElement>("#rover-run")!.onclick = () => {
+  CommandQueue.forEach((command) => {
+    InvokeThee(command);
+  });
+  CommandQueue.length = 0;
+  drawQueue();
+  drawRover();
+};
+document.querySelector<HTMLButtonElement>("#rover-clear")!.onclick = () => {
+  CommandQueue.length = 0;
+  drawQueue();
   drawRover();
 };
 drawRover();
