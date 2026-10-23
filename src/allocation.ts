@@ -21,15 +21,21 @@ interface ShiftedProdNums {
   producers: number;
 }
 
+interface ResourceDisplay {
+  label: string;
+  color: string;
+  howmany: number;
+}
+
 function calc(producers: number): ShiftedProdNums {
   const production = producers * 3;
   const consumption = 6;
 
   const calcresult: ShiftedProdNums = {
-    production: production,
-    consumption: 6,
+    production,
+    consumption,
     balance: production - consumption,
-    producers: producers,
+    producers,
   };
   return calcresult;
 }
@@ -56,13 +62,29 @@ function draw_members(results: ShiftedProdNums) {
 }
 
 function draw_resources(results: ShiftedProdNums) {
-  ctx.fillText(`Production: ${results.production}`, 18, 102);
-  ctx.fillStyle = "#27766b";
-  ctx.fillRect(18, 110, results.production * 14, 20);
-  ctx.fillStyle = "#233e43";
-  ctx.fillText(`Consumption: ${results.consumption}`, 18, 154);
-  ctx.fillStyle = "#a44d23";
-  ctx.fillRect(18, 162, results.consumption * 14, 20);
+  const resources_to_draw: ResourceDisplay[] = [
+    {
+      label: "Production",
+      color: "#27766b",
+      howmany: results.production,
+    },
+    {
+      label: "Consumption",
+      color: "#a44d23",
+      howmany: results.consumption,
+    },
+  ];
+
+  resources_to_draw.forEach((resource, index) => {
+    ctx.fillStyle = "#233e43";
+    ctx.fillText(
+      `${resource.label}: ${resource.howmany}`,
+      18,
+      102 + index * 52,
+    );
+    ctx.fillStyle = `${resource.color}`;
+    ctx.fillRect(18, 110 + index * 52, resource.howmany * 14, 20);
+  });
 }
 
 document.querySelector<HTMLButtonElement>("#allocation-less")!.onclick = () => {
